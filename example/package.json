@@ -1,0 +1,51 @@
+{
+  "name": "VisionCameraSimpleScannerExample",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android; adb reverse tcp:8081 tcp:8081",
+    "android:clean": "cd android; ./gradlew clean; rm -rf .gradle app/build build; cd ..",
+    "android:devtools": "adb shell input keyevent 82",
+    "android:install": "adb install android/app/build/outputs/apk/debug/*.apk",
+    "android:log": "react-native log-android",
+    "android:logcat": "adb logcat '*:S *:E ReactNative:V ReactNativeJS:V VisionCameraProxy:V VisionCameraSimpleScanner:V'",
+    "android:reverse": "adb reverse tcp:8081 tcp:8081",
+    "modules:clean": "rm -rf node_modules yarn.lock; yarn install",
+    "patch": "patch-package react-native-vision-camera --exclude='/.cxx|build/'",
+    "ios": "react-native run-ios",
+    "lint": "eslint .",
+    "start": "react-native start",
+    "dev": "watchman watch-del \"$(pwd)/..\"; watchman watch-del \"$(pwd)\"; clear; react-native start --reset-cache"
+  },
+  "dependencies": {
+    "@shopify/react-native-skia": "1.0.5",
+    "react": "18.2.0",
+    "react-native": "0.73.6",
+    "react-native-safe-area-context": "^4.9.0",
+    "react-native-vision-camera": "3.9.2",
+    "react-native-worklets-core": "0.4.0",
+    "vision-camera-simple-scanner": "link:.."
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.3",
+    "@babel/preset-env": "^7.24.3",
+    "@babel/runtime": "^7.24.1",
+    "@mgcrea/eslint-config-react-native": "^0.10.1",
+    "@mgcrea/metro-plugin-linked-packages": "^1.2.0",
+    "@react-native/babel-preset": "^0.73.21",
+    "@react-native/metro-config": "^0.73.5",
+    "@react-native/typescript-config": "^0.73.1",
+    "@types/react": "^18.2.74",
+    "@types/react-test-renderer": "^18.0.7",
+    "babel-jest": "^29.7.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "jest": "^29.7.0",
+    "prettier": "^3.2.5",
+    "react-test-renderer": "18.2.0",
+    "typescript": "5.4.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

@@ -1,0 +1,41 @@
+name: Release
+
+# Lets manually trigger releases for now
+on:
+  # push:
+  #   branches:
+  #     - main
+  workflow_dispatch:
+
+permissions:
+  contents: read # for checkout
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to be able to publish a GitHub release
+      issues: write # to be able to comment on released issues
+      pull-requests: write # to be able to comment on released pull requests
+      id-token: write # to enable use of OIDC for npm provenance
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup node 🔧
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+      - name: Install 🪄
+        run: yarn install --frozen-lockfile
+      - name: Verify integrity ✨
+        run: npm audit signatures
+      - name: Build 💎
+        run: yarn run build
+      - name: Release 🏁
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: yarn dlx semantic-release
