@@ -1,4 +1,4 @@
-name: main
+name: Checks
 
 on:
   push:
@@ -8,12 +8,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  check:
+  validate:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node: ["lts/-1", "lts/*"]
-    name: Check on node@${{ matrix.node }}
+    name: Validate on node@${{ matrix.node }}
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
@@ -25,7 +25,7 @@ jobs:
           node-version: ${{ matrix.node }}
           cache: 'yarn'
       - name: Install 🪄
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Lint 🔍
         run: yarn run lint
       - name: Prettier 🔍

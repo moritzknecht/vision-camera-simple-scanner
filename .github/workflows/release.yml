@@ -31,13 +31,11 @@ jobs:
         with:
           node-version: "lts/*"
       - name: Install 🪄
-        run: yarn install --frozen-lockfile
-      - name: Verify integrity ✨
-        run: npm audit signatures
+        run: yarn install --immutable
       - name: Build 💎
         run: yarn run build
       - name: Release 🏁
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: yarn dlx semantic-release
+        run: npx semantic-release
