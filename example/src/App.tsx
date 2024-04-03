@@ -14,6 +14,8 @@ import {
 } from 'vision-camera-simple-scanner';
 import { SkiaCameraHighlights } from './SkiaCameraHighlights';
 
+const DEBUGGING_MODE = false;
+
 export default function App() {
   // Ask for camera permission
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -60,7 +62,7 @@ export default function App() {
         <>
           <Camera
             // You're free to do any react-native-vision-camera customization you'd normally do
-            // enableFpsGraph
+            enableFpsGraph={DEBUGGING_MODE}
             // orientation="landscape-right"
             // resizeMode="cover"
             style={StyleSheet.absoluteFill}
@@ -72,10 +74,10 @@ export default function App() {
             {...cameraProps}
           />
           <SkiaCameraHighlights
-            // Bring-your-own renderer, this is just an example of a Skia renderer
+            // Bring-your-own highlight renderer (or don't!), this is just an example of a Skia renderer
             highlights={highlights}
             color="limegreen"
-            debug={false}
+            debug={DEBUGGING_MODE}
             onBarcodeTapped={(barcode) => setTappedCode(barcode)}
           />
         </>

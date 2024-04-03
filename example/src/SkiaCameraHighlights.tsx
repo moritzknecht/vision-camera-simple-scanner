@@ -89,8 +89,8 @@ export const SkiaCameraHighlights: FunctionComponent<CameraHighlightsProps> = ({
                 a.intersections.hitDistance - b.intersections.hitDistance,
             )[0];
           if (hit) {
-            console.log(`tapped on barcode ${hit.result.barcode.value}`);
-            onBarcodeTapped && onBarcodeTapped(hit.result.barcode);
+            console.log(`tapped on barcode ${hit.result.value}`);
+            onBarcodeTapped && onBarcodeTapped(hit.result);
             return;
           }
 
@@ -102,8 +102,8 @@ export const SkiaCameraHighlights: FunctionComponent<CameraHighlightsProps> = ({
                 a.intersections.hitDistance - b.intersections.hitDistance,
             )[0];
           if (fuzzyHit) {
-            console.log(`tapped near barcode ${fuzzyHit.result.barcode.value}`);
-            onBarcodeTapped && onBarcodeTapped(fuzzyHit.result.barcode);
+            console.log(`tapped near barcode ${fuzzyHit.result.value}`);
+            onBarcodeTapped && onBarcodeTapped(fuzzyHit.result);
             return;
           }
         }}
@@ -118,7 +118,7 @@ type CameraHighlightProps = Highlight & {
 };
 export const AdvancedCameraHighlight: FunctionComponent<
   CameraHighlightProps
-> = ({ debug, barcode, cornerPoints, color }) => {
+> = ({ debug, value, cornerPoints, color }) => {
   // Make a full polygon from the list of points
   const polyPoints = cornerPoints.map((p) => vec(p.x, p.y));
 
@@ -140,7 +140,7 @@ export const AdvancedCameraHighlight: FunctionComponent<
           font={font}
           path={path}
           color="hotpink"
-          text={barcode.value ?? '???'}
+          text={value ?? '???'}
         />
       )}
     </Group>

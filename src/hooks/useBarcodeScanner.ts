@@ -33,7 +33,7 @@ export const useBarcodeScanner = ({
   resizeMode = 'cover',
   scanMode = 'continuous',
   isMountedRef,
-  fps = 5,
+  fps = 30,
 }: UseBarcodeScannerOptions) => {
   // Layout of the <Camera /> component
   const layoutRef = useSharedValue<Size>({ width: 0, height: 0 });
@@ -43,7 +43,6 @@ export const useBarcodeScanner = ({
   };
 
   const resizeModeRef = useLatestSharedValue<ResizeMode>(resizeMode);
-  const isPristineRef = useSharedValue<boolean>(true);
 
   // Barcode highlights related state
   const barcodesRef = useSharedValue<Barcode[]>([]);
@@ -99,11 +98,6 @@ export const useBarcodeScanner = ({
         }
 
         if (disableHighlighting !== true && resizeMode !== undefined) {
-          // We must ignore the first frame because as it has width/height inverted (maybe the right value though?)
-          if (isPristineRef.value) {
-            isPristineRef.value = false;
-            return;
-          }
           const highlights = computeHighlights(
             barcodes,
             { width, height, orientation }, // "serialized" frame

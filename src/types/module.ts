@@ -33,13 +33,12 @@ export type Barcode = {
   value: string | null;
   type: BarcodeType;
   boundingBox: BoundingBox;
-  cornerPoints: Point[];
+  cornerPoints: CornerPoints;
   native: iOSBarcode | AndroidBarcode;
 };
 
-export type Highlight = {
+export type Highlight = Barcode & {
   key: Key;
-  barcode: Barcode;
   // Adjusted corners values to scale
   cornerPoints: CornerPoints;
   // Adjusted bounding box value to scale

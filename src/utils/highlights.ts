@@ -51,8 +51,8 @@ export const computeHighlights = (
     );
 
     return {
+      ...barcode,
       key: `${value}.${index}`,
-      barcode,
       cornerPoints: translatedCornerPoints,
       boundingBox: valueFromCornerPoints,
     };

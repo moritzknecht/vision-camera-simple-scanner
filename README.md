@@ -10,7 +10,7 @@ High performance barcode scanner for React Native using VisionCamera.
 
 - **Powerful & Performant:** The implementation has been tailored for advanced use cases where performance is critical. Scanning barcodes is butter smooth at 30fps, and you can customize the detection speed loop (detection fps). Template functionality can provide easy access to high-refresh rate video streams, including 60fps video input on some Android/iOS devices.
 
-- **Hooks based:** Exposes a single, easy-to-use hook [`useBarcodeScanner`](./src/hooks/useBarcodeScanner.ts) to quickly get started
+- **Hooks based:** Exposes a single, easy-to-use hook [`useBarcodeScanner`](./src/hooks/useBarcodeScanner.ts)
 
 ## Demo
 
