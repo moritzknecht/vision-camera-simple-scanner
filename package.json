@@ -71,5 +71,8 @@
     "tsup": "^8.0.2",
     "typescript": "^5.4.3"
   },
-  "packageManager": "yarn@4.1.1"
+  "packageManager": "yarn@4.1.1",
+  "release": {
+    "branches": ["main"]
+  }
 }
