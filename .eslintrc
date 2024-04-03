@@ -1,4 +1,3 @@
 {
-  "extends": ["@mgcrea/react-native"],
-  "rules": {}
+  "extends": ["@mgcrea/react-native"]
 }
