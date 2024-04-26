@@ -4,7 +4,7 @@
 
 High performance barcode scanner for React Native using VisionCamera.
 
-- **Modern and future-proof:** Built on [react-native-vision-camera@3](https://github.com/mrousavy/react-native-vision-camera) with minimal native dependencies for each platforms to minimize future build-failure risk.
+- **Modern and future-proof:** Built on [react-native-vision-camera@4](https://github.com/mrousavy/react-native-vision-camera) with minimal native dependencies for each platforms to minimize future build-failure risk.
 
 - **Minimal footprint:** Leverages [Google's MLKit BarcodeScanner](https://developers.google.com/android/reference/com/google/mlkit/vision/barcode/package-summary) on Android and [Apple's Vision VNDetectBarcodesRequest](https://developer.apple.com/documentation/vision/vndetectbarcodesrequest).
 
@@ -21,8 +21,10 @@ A working project can be found at [vision-camera-simple-scanner/example](./examp
 ## Install
 
 > [!WARNING]
-> The project is currently trying to closely track [react-native-vision-camera@3](https://github.com/mrousavy/react-native-vision-camera/releases),
-> The latest 1.x releases are made to work with the latest `react-native-vision-camera@3` (currently 3.9.2)
+> The project is currently trying to closely track [react-native-vision-camera@4](https://github.com/mrousavy/react-native-vision-camera/releases),
+> The latest 2.x releases are made to work with the latest `react-native-vision-camera@4` (currently 4.0.1)
+> Since @mrousavy has the hottest take ever on orientation support in react-native-vision-camera (bake in worse-than-default behavior and then take the stance of f\*ck you pay me), there's a [patch file](./example/patches/react-native-vision-camera+4.0.1.patch) to work around most of the preview-related orientation issues. Since barcode scanning doesn't involve saving photos or video, this patch is only tested to work with previewing photo/video. Use at your own risk.
+> If you're using JSC instead of hermes, you will need an additional patch to `react-native-worklets-core`. See the [patch file](./example/patches/react-native-worklets-core+1.2.0.patch) in the example project. This patch is not required when using hermes, but as far as I can tell it doesn't cause any issues.
 
 ```bash
 npm install vision-camera-simple-scanner
@@ -65,16 +67,13 @@ import {
   useCameraDevices,
   useCameraFormat,
 } from 'react-native-vision-camera';
-import { 
-  useBarcodeScanner, 
-  Templates 
-} from 'vision-camera-simple-scanner';
+import { useBarcodeScanner, Templates } from 'vision-camera-simple-scanner';
 
 export const App: FunctionComponent = () => {
   // @NOTE you must properly ask for camera permissions first!
   // You should use `PermissionsAndroid` for Android and `Camera.requestCameraPermission()` on iOS.
 
-  // Here's the functionality of this library; configure it for your use case, 
+  // Here's the functionality of this library; configure it for your use case,
   // pass the props to react-native-vision-camera, and you're good to go!
   const { props: cameraProps } = useBarcodeScanner({
     fps: 30,
@@ -93,9 +92,7 @@ export const App: FunctionComponent = () => {
   // Typical react-native-vision-camera setup
   const devices = useCameraDevices();
   const device = devices.find(({ position }) => position === 'back');
-  // This library also provides specific templates which can make scanning easier for you
-  const format = useCameraFormat(device, Templates.FrameProcessingYUV);
-  if (!device || !format) {
+  if (!device) {
     return null;
   }
 
@@ -104,19 +101,18 @@ export const App: FunctionComponent = () => {
       <Camera
         style={StyleSheet.absoluteFill}
         device={device}
-        format={format}
         isActive
         {...cameraProps}
       />
     </View>
   );
 };
-
 ```
 
 ## Credits
 
 Heavily based on code from
+
 - [mgcrea/vision-camera-barcode-scanner](https://github.com/mgcrea/vision-camera-barcode-scanner)
 
 ## Authors

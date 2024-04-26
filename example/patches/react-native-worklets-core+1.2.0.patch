@@ -1,0 +1,13 @@
+diff --git a/node_modules/react-native-worklets-core/cpp/WKTJsiWorkletContext.cpp b/node_modules/react-native-worklets-core/cpp/WKTJsiWorkletContext.cpp
+index 9503d58..ac9958a 100644
+--- a/node_modules/react-native-worklets-core/cpp/WKTJsiWorkletContext.cpp
++++ b/node_modules/react-native-worklets-core/cpp/WKTJsiWorkletContext.cpp
+@@ -220,7 +220,7 @@ JsiWorkletContext::createCallInContext(jsi::Runtime &runtime,
+     ArgumentsWrapper argsWrapper(runtime, arguments, count);
+ 
+     // Wrap the this value
+-    auto thisWrapper = JsiWrapper::wrap(runtime, thisValue);
++    auto thisWrapper = JsiWrapper::wrap(runtime, jsi::Value::undefined());
+ 
+     // If we are calling directly from/to the JS context or within the same
+     // context, we can just dispatch everything directly.

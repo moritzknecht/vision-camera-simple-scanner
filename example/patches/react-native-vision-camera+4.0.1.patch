@@ -1,0 +1,151 @@
+diff --git a/node_modules/react-native-vision-camera/ios/Core/Extensions/AVCaptureOutput+mirror.swift b/node_modules/react-native-vision-camera/ios/Core/Extensions/AVCaptureOutput+mirror.swift
+index 63910cd..014c9bd 100644
+--- a/node_modules/react-native-vision-camera/ios/Core/Extensions/AVCaptureOutput+mirror.swift
++++ b/node_modules/react-native-vision-camera/ios/Core/Extensions/AVCaptureOutput+mirror.swift
+@@ -30,6 +30,8 @@ extension AVCaptureOutput {
+    - For Videos, the buffers are physically rotated if available, since we use an AVCaptureVideoDataOutput instead of an AVCaptureMovieFileOutput.
+    */
+   func setOrientation(_ orientation: Orientation) {
++    return;
++
+     // Set orientation for each connection
+     for connection in connections {
+       #if swift(>=5.9)
+diff --git a/node_modules/react-native-vision-camera/ios/React/CameraView.swift b/node_modules/react-native-vision-camera/ios/React/CameraView.swift
+index 9a76115..bf54f96 100644
+--- a/node_modules/react-native-vision-camera/ios/React/CameraView.swift
++++ b/node_modules/react-native-vision-camera/ios/React/CameraView.swift
+@@ -86,6 +86,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
+   }
+ 
+   // pragma MARK: Internal Properties
++  var cameraViewController: CameraViewController?
+   var cameraSession = CameraSession()
+   var previewView: PreviewView?
+   var isMounted = false
+@@ -129,10 +130,16 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
+   }
+ 
+   override public func layoutSubviews() {
+-    if let previewView {
+-      previewView.frame = frame
+-      previewView.bounds = bounds
+-    }
++    super.layoutSubviews()
++    
++    // To disable jank double animation from react-native and the preview subview both rotating
++    CATransaction.begin()
++    CATransaction.setDisableActions(true)
++    layer.sublayers?.forEach({ layer in
++      layer.frame = frame
++      layer.bounds = bounds
++    })
++    CATransaction.commit()
+   }
+ 
+   func getPixelFormat() -> PixelFormat {
+@@ -266,6 +273,8 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
+       pinchScaleOffset = zoom.doubleValue
+     }
+     
++    self.setupViewController()
++
+     // Prevent phone from going to sleep
+     UIApplication.shared.isIdleTimerDisabled = isActive
+   }
+@@ -288,6 +297,28 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
+     }
+   }
+   
++  // pragma MARK: CameraViewController
++  // This exists purely for orientation handling
++  
++  func setupViewController() {
++      if cameraViewController == nil {
++        cameraViewController = CameraViewController()
++        cameraViewController!.parentView = self
++          
++          DispatchQueue.main.async { [self] in
++              if self.reactViewController() != nil {
++                  self.reactViewController()!.addChild(self.cameraViewController!)
++                  self.cameraViewController!.didMove(toParent: self.reactViewController())
++              } else {
++                  self.reactAddController(toClosestParent: self.cameraViewController)
++              }
++          }
++          
++          cameraViewController!.view.frame = self.frame
++          self.addSubview(cameraViewController!.view)
++      }
++  }
++
+   // pragma MARK: Event Invokers
+ 
+   func onError(_ error: CameraError) {
+@@ -396,9 +427,9 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
+     //   It would be more efficient to leave it without any rotation, and just rotate the outputs (AVAssetWriter).
+     //   See https://github.com/mrousavy/react-native-vision-camera/issues/2046 for more information.
+     if cameraPosition == .front {
+-      return .upMirrored
++      return .downMirrored
+     } else {
+-      return .up
++      return .down
+     }
+   }
+ }
+diff --git a/node_modules/react-native-vision-camera/ios/React/CameraViewController.swift b/node_modules/react-native-vision-camera/ios/React/CameraViewController.swift
+new file mode 100644
+index 0000000..b07eb07
+--- /dev/null
++++ b/node_modules/react-native-vision-camera/ios/React/CameraViewController.swift
+@@ -0,0 +1,49 @@
++//
++//  CameraViewController.swift
++//  VisionCamera
++//
++//  Created by Max Gurela on 2/8/24.
++//
++
++import AVFoundation
++import UIKit
++
++public final class CameraViewController: UIViewController {
++  var parentView:CameraView!
++
++  public func overrideOrientation() {
++    if let videoPreviewLayerConnection = parentView.previewView?.videoPreviewLayer.connection {
++      // Kinda jank, but this is the best way I could find to get the interface orientation in Swift 5/iOS 17..
++      guard let interfaceOrientation = UIApplication.shared.windows.first(where: { $0.isKeyWindow })?.windowScene?.interfaceOrientation else {
++        return
++      }
++      
++      // UIInterfaceOrientation overlaps perfectly with AVCaptureVideoOrientation
++      guard let newVideoOrientation = AVCaptureVideoOrientation(rawValue: interfaceOrientation.rawValue),
++            interfaceOrientation.isPortrait || interfaceOrientation.isLandscape else {
++        return
++      }
++      
++      videoPreviewLayerConnection.videoOrientation = newVideoOrientation
++    }
++  }
++  
++  public override func viewWillLayoutSubviews() {
++    super.viewDidLayoutSubviews()
++    
++    self.overrideOrientation()
++  }
++ 
++  public override func viewDidAppear(_ animated: Bool) {
++    super.viewDidAppear(animated)
++    
++    self.overrideOrientation()
++  }
++  
++  public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
++    super.viewWillTransition(to: size, with: coordinator)
++    
++    self.overrideOrientation()
++  }
++  
++}

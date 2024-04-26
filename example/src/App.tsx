@@ -4,14 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Camera,
   useCameraDevices,
-  useCameraFormat,
   useCameraPermission,
 } from 'react-native-vision-camera';
-import {
-  Templates,
-  useBarcodeScanner,
-  type Barcode,
-} from 'vision-camera-simple-scanner';
+import { useBarcodeScanner, type Barcode } from 'vision-camera-simple-scanner';
 import { SkiaCameraHighlights } from './SkiaCameraHighlights';
 
 const DEBUGGING_MODE = false;
@@ -39,8 +34,7 @@ export default function App() {
 
   const devices = useCameraDevices();
   const device = devices.find(({ position }) => position === 'back');
-  const format = useCameraFormat(device, Templates.FrameProcessingYUV);
-  if (!device || !format) {
+  if (!device) {
     return null;
   }
 
@@ -68,7 +62,6 @@ export default function App() {
             style={StyleSheet.absoluteFill}
             device={device}
             isActive={!isPaused}
-            format={format}
             zoom={2}
             orientation={'landscape-right'}
             {...cameraProps}
