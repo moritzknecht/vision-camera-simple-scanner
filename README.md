@@ -23,7 +23,9 @@ A working project can be found at [vision-camera-simple-scanner/example](./examp
 > [!WARNING]
 > The project is currently trying to closely track [react-native-vision-camera@4](https://github.com/mrousavy/react-native-vision-camera/releases),
 > The latest 2.x releases are made to work with the latest `react-native-vision-camera@4` (currently 4.0.1)
-> Since @mrousavy has the hottest take ever on orientation support in react-native-vision-camera (bake in worse-than-default behavior and then take the stance of f\*ck you pay me), there's a [patch file](./example/patches/react-native-vision-camera+4.0.1.patch) to work around most of the preview-related orientation issues. Since barcode scanning doesn't involve saving photos or video, this patch is only tested to work with previewing photo/video. Use at your own risk.
+>
+> The example application provides a [patch file](./example/patches/react-native-vision-camera+4.0.1.patch) to work around most of the preview-related orientation issues in vision-camera. Since barcode scanning doesn't involve saving photos or video, this patch is only tested to work with previewing photo/video. Use at your own risk.
+>
 > If you're using JSC instead of hermes, you will need an additional patch to `react-native-worklets-core`. See the [patch file](./example/patches/react-native-worklets-core+1.2.0.patch) in the example project. This patch is not required when using hermes, but as far as I can tell it doesn't cause any issues.
 
 ```bash
@@ -38,7 +40,7 @@ pnpm add vision-camera-simple-scanner
 
 This package relies on:
 
-- [react-native-vision-camera@>=3](https://github.com/mrousavy/react-native-vision-camera)
+- [react-native-vision-camera@>=4](https://github.com/mrousavy/react-native-vision-camera)
 - [react-native-worklets-core](https://github.com/margelo/react-native-worklets-core)
 
 You must add them as dependencies to your project:
