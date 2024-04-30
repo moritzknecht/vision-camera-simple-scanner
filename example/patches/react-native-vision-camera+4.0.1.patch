@@ -12,7 +12,7 @@ index 63910cd..014c9bd 100644
      for connection in connections {
        #if swift(>=5.9)
 diff --git a/node_modules/react-native-vision-camera/ios/React/CameraView.swift b/node_modules/react-native-vision-camera/ios/React/CameraView.swift
-index 9a76115..8b687c7 100644
+index 9a76115..8919ef1 100644
 --- a/node_modules/react-native-vision-camera/ios/React/CameraView.swift
 +++ b/node_modules/react-native-vision-camera/ios/React/CameraView.swift
 @@ -86,6 +86,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
@@ -82,12 +82,49 @@ index 9a76115..8b687c7 100644
    // pragma MARK: Event Invokers
  
    func onError(_ error: CameraError) {
+@@ -392,13 +423,30 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
+     guard let cameraPosition = cameraSession.videoDeviceInput?.device.position else {
+       return .up
+     }
+-    // TODO: Currently the Video Pipeline rotates all buffers to be upright/portrait orientation.
+-    //   It would be more efficient to leave it without any rotation, and just rotate the outputs (AVAssetWriter).
+-    //   See https://github.com/mrousavy/react-native-vision-camera/issues/2046 for more information.
++    
++    var orientation = UIImage.Orientation.up;
++    
++    switch (self.cameraViewController?.currentInterfaceOrientation) {
++      case .portrait:
++        orientation = .up;
++        break;
++      case .landscapeRight:
++        orientation = .right;
++        break;
++      case .landscapeLeft:
++        orientation = .left;
++        break;
++      case .portraitUpsideDown:
++        orientation = .down;
++        break;
++      default:
++        break;
++    }
++    
+     if cameraPosition == .front {
+-      return .upMirrored
+-    } else {
+-      return .up
++      orientation = UIImage.Orientation(rawValue: (orientation.rawValue + 4))!;
+     }
++    
++    return orientation;
+   }
+ }
 diff --git a/node_modules/react-native-vision-camera/ios/React/CameraViewController.swift b/node_modules/react-native-vision-camera/ios/React/CameraViewController.swift
 new file mode 100644
-index 0000000..b07eb07
+index 0000000..161b101
 --- /dev/null
 +++ b/node_modules/react-native-vision-camera/ios/React/CameraViewController.swift
-@@ -0,0 +1,49 @@
+@@ -0,0 +1,51 @@
 +//
 +//  CameraViewController.swift
 +//  VisionCamera
@@ -99,7 +136,8 @@ index 0000000..b07eb07
 +import UIKit
 +
 +public final class CameraViewController: UIViewController {
-+  var parentView:CameraView!
++  var parentView: CameraView!
++  var currentInterfaceOrientation: UIInterfaceOrientation!;
 +
 +  public func overrideOrientation() {
 +    if let videoPreviewLayerConnection = parentView.previewView?.videoPreviewLayer.connection {
@@ -114,26 +152,27 @@ index 0000000..b07eb07
 +        return
 +      }
 +      
++      currentInterfaceOrientation = interfaceOrientation;
 +      videoPreviewLayerConnection.videoOrientation = newVideoOrientation
 +    }
 +  }
 +  
 +  public override func viewWillLayoutSubviews() {
-+    super.viewDidLayoutSubviews()
-+    
 +    self.overrideOrientation()
++    
++    super.viewDidLayoutSubviews()
 +  }
 + 
 +  public override func viewDidAppear(_ animated: Bool) {
-+    super.viewDidAppear(animated)
-+    
 +    self.overrideOrientation()
++    
++    super.viewDidAppear(animated)
 +  }
 +  
 +  public override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-+    super.viewWillTransition(to: size, with: coordinator)
-+    
 +    self.overrideOrientation()
++    
++    super.viewWillTransition(to: size, with: coordinator)
 +  }
 +  
 +}
