@@ -20,7 +20,7 @@ static RCTEventEmitter* eventEmitter = nil;
  */
 - (id)callback:(Frame*)frame withArguments:(NSDictionary*)arguments {
   CMSampleBufferRef buffer = frame.buffer;
-  // UIImageOrientation orientation = frame.orientation;
+  UIImageOrientation orientation = frame.orientation;
 
   CVPixelBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(buffer);
   size_t width = CVPixelBufferGetWidth(pixelBuffer);
@@ -64,7 +64,7 @@ static RCTEventEmitter* eventEmitter = nil;
                    for (VNBarcodeObservation* observation in observations) {
                      NSLog(@"Payload: %@ (%@)", observation.payloadStringValue, observation.symbology);
                      NSDictionary* observationResult = [self dictionaryFromObservation:observation];
-                     // [observationResult setValue:[NSNumber numberWithInt:orientation] forKey:@"orientation"];
+                     [observationResult setValue:[NSNumber numberWithInt:orientation] forKey:@"orientation"];
                      [eventEmitter sendEventWithName:@"onBarcodeDetected" body:observationResult];
                      [result addObject:observationResult];
                    }

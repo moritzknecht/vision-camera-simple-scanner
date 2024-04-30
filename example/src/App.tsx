@@ -1,12 +1,25 @@
 import React, { useState } from 'react';
-import { Button, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  Button,
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Camera,
   useCameraDevices,
   useCameraPermission,
+  type Frame,
+  type Point,
 } from 'react-native-vision-camera';
-import { useBarcodeScanner, type Barcode } from 'vision-camera-simple-scanner';
+import {
+  useBarcodeScanner,
+  type Barcode,
+  type Size,
+} from 'vision-camera-simple-scanner';
 import { SkiaCameraHighlights } from './SkiaCameraHighlights';
 
 const DEBUGGING_MODE = false;
@@ -24,11 +37,46 @@ export default function App() {
     fps: 30,
     onBarcodeScanned: (barcodes) => {
       'worklet';
+
       console.log(
         `Scanned ${barcodes.length} codes with values=${JSON.stringify(
           barcodes.map(({ value }) => value),
         )} !`,
       );
+    },
+    // If we are patching react-native-vision-camera, we likely want to use our own point mapping function
+    pointMapper: (
+      { x, y }: Point,
+      { width, height }: Size,
+      orientation: Frame['orientation'],
+    ) => {
+      'worklet';
+
+      if (Platform.OS === 'android') {
+        switch (orientation) {
+          case 'portrait':
+            return { x: height - y, y: x };
+          default:
+            console.warn(`Unsupported orientation: ${orientation}`);
+            return { x, y };
+        }
+      } else if (Platform.OS === 'ios') {
+        switch (orientation) {
+          case 'portrait':
+            return { x: y, y: x };
+          case 'landscape-left':
+            return { x, y: height - y };
+          case 'landscape-right':
+            return { x: width - x, y };
+          case 'portrait-upside-down':
+            return { x: height - y, y: width - x };
+          default:
+            console.warn(`Unsupported orientation: ${orientation}`);
+            return { x, y };
+        }
+      } else {
+        throw new Error(`Unsupported platform: ${Platform.OS}`);
+      }
     },
   });
 

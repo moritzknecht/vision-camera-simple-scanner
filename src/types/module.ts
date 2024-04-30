@@ -1,5 +1,6 @@
+import { Frame } from 'react-native-vision-camera';
 import type { AndroidBarcode } from './android';
-import type { Key, Point } from './common';
+import type { Key, Point, Size } from './common';
 import type { iOSBarcode, iOSBoundingBox } from './ios';
 
 export type VisionCameraConstants = {
@@ -44,3 +45,10 @@ export type Highlight = Barcode & {
   // Adjusted bounding box value to scale
   boundingBox: BoundingBox;
 };
+
+// Should be a worklet function
+export type PointMapperFn = (
+  point: Point,
+  layout: Size,
+  frame: Frame['orientation'],
+) => Point;

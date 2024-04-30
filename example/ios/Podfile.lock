@@ -1078,7 +1078,7 @@ PODS:
   - VisionCamera/React (4.0.1):
     - React-Core
     - VisionCamera/FrameProcessors
-  - VisionCameraSimpleScanner (1.0.0):
+  - VisionCameraSimpleScanner (2.0.0):
     - glog
     - RCT-Folly (= 2022.05.16.00)
     - React-Core
@@ -1260,11 +1260,11 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost: d3f49c53809116a5d38da093a8aa78bf551aed09
-  DoubleConversion: 5189b271737e1565bdce30deb4a08d647e3f5f54
+  DoubleConversion: fea03f2699887d960129cc54bba7e52542b6f953
   FBLazyVector: f64d1e2ea739b4d8f7e4740cde18089cd97fe864
   FBReactNativeSpec: 9f2b8b243131565335437dba74923a8d3015e780
   fmt: ff9d55029c625d3757ed641535fd4a75fedc7ce9
-  glog: 04b94705f318337d7ead9e6d17c019bd9b1f6b1b
+  glog: c5d68082e772fa1c511173d6b30a9de2c05a69a2
   hermes-engine: 9cecf9953a681df7556b8cc9c74905de8f3293c0
   libevent: 4049cae6c81cdb3654a443be001fb9bdceff7913
   RCT-Folly: 7169b2b1c44399c76a47b5deaaba715eeeb476c0
@@ -1313,9 +1313,9 @@ SPEC CHECKSUMS:
   ReactCommon: 2aa35648354bd4c4665b9a5084a7d37097b89c10
   SocketRocket: f32cd54efbe0f095c4d7594881e52619cfe80b17
   VisionCamera: 8e00df84a76cf26ca70ecd3b6ed05dc0d3b60beb
-  VisionCameraSimpleScanner: 0393bbefa886d2b509f5af1caeed322b5f0915ce
+  VisionCameraSimpleScanner: 37dd2604e408ccbcbfcf359df9a64a7199295b91
   Yoga: 805bf71192903b20fc14babe48080582fee65a80
 
-PODFILE CHECKSUM: cdf31bc6929df91ac6ee7c20a96d9dc0284cc6e7
+PODFILE CHECKSUM: fc5976942853e6916cdbfb1ae161e877cee5464f
 
 COCOAPODS: 1.14.3

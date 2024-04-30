@@ -8,7 +8,14 @@ import {
 } from 'react-native-vision-camera';
 import { Worklets, useSharedValue } from 'react-native-worklets-core';
 import { ScanBarcodesOptions, scanCodes } from 'src/module';
-import type { Barcode, BarcodeType, Highlight, Rect, Size } from 'src/types';
+import type {
+  Barcode,
+  BarcodeType,
+  Highlight,
+  PointMapperFn,
+  Rect,
+  Size,
+} from 'src/types';
 import { computeHighlights } from '..';
 import { useLatestSharedValue } from './useLatestSharedValue';
 
@@ -19,6 +26,7 @@ export type UseBarcodeScannerOptions = {
   regionOfInterest?: Rect;
   fps?: number;
   onBarcodeScanned?: (barcodes: Barcode[], frame: Frame) => void;
+  pointMapper?: PointMapperFn;
   disableHighlighting?: boolean;
   resizeMode?: ResizeMode;
   scanMode?: 'continuous' | 'once';
@@ -29,6 +37,7 @@ export const useBarcodeScanner = ({
   barcodeTypes,
   regionOfInterest,
   onBarcodeScanned,
+  pointMapper,
   disableHighlighting,
   resizeMode = 'cover',
   scanMode = 'continuous',
@@ -101,7 +110,9 @@ export const useBarcodeScanner = ({
             { width, height, orientation }, // "serialized" frame
             layout,
             resizeMode,
+            pointMapper,
           );
+
           // Spare a re-render if the highlights are both empty
           if (lastHighlightsCount.value === 0 && highlights.length === 0) {
             return;

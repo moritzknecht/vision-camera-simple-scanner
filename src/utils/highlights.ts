@@ -1,5 +1,5 @@
 import type { CameraProps, Frame } from 'react-native-vision-camera';
-import type { Barcode, Highlight, Size } from 'src/types';
+import type { Barcode, Highlight, PointMapperFn, Size } from 'src/types';
 import { computeBoundingBoxFromCornerPoints } from './convert';
 import { applyScaleFactor, applyTransformation } from './geometry';
 
@@ -8,6 +8,7 @@ export const computeHighlights = (
   frame: Pick<Frame, 'width' | 'height' | 'orientation'>,
   layout: Size,
   resizeMode: CameraProps['resizeMode'] = 'cover',
+  pointMapper?: PointMapperFn,
 ): Highlight[] => {
   'worklet';
 
@@ -42,9 +43,16 @@ export const computeHighlights = (
     translatedCornerPoints = translatedCornerPoints?.map((point) =>
       applyScaleFactor(point, frame, adjustedLayout, resizeMode),
     );
-    translatedCornerPoints = translatedCornerPoints?.map((point) =>
-      applyTransformation(point, adjustedLayout, frame.orientation),
-    );
+
+    if (pointMapper) {
+      translatedCornerPoints = translatedCornerPoints?.map((point) =>
+        pointMapper(point, layout, frame.orientation),
+      );
+    } else {
+      translatedCornerPoints = translatedCornerPoints?.map((point) =>
+        applyTransformation(point, adjustedLayout, frame.orientation),
+      );
+    }
 
     const valueFromCornerPoints = computeBoundingBoxFromCornerPoints(
       translatedCornerPoints!,

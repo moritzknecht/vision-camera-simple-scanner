@@ -12,7 +12,7 @@ index 63910cd..014c9bd 100644
      for connection in connections {
        #if swift(>=5.9)
 diff --git a/node_modules/react-native-vision-camera/ios/React/CameraView.swift b/node_modules/react-native-vision-camera/ios/React/CameraView.swift
-index 9a76115..bf54f96 100644
+index 9a76115..8b687c7 100644
 --- a/node_modules/react-native-vision-camera/ios/React/CameraView.swift
 +++ b/node_modules/react-native-vision-camera/ios/React/CameraView.swift
 @@ -86,6 +86,7 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
@@ -82,18 +82,6 @@ index 9a76115..bf54f96 100644
    // pragma MARK: Event Invokers
  
    func onError(_ error: CameraError) {
-@@ -396,9 +427,9 @@ public final class CameraView: UIView, CameraSessionDelegate, FpsSampleCollector
-     //   It would be more efficient to leave it without any rotation, and just rotate the outputs (AVAssetWriter).
-     //   See https://github.com/mrousavy/react-native-vision-camera/issues/2046 for more information.
-     if cameraPosition == .front {
--      return .upMirrored
-+      return .downMirrored
-     } else {
--      return .up
-+      return .down
-     }
-   }
- }
 diff --git a/node_modules/react-native-vision-camera/ios/React/CameraViewController.swift b/node_modules/react-native-vision-camera/ios/React/CameraViewController.swift
 new file mode 100644
 index 0000000..b07eb07
