@@ -1,6 +1,6 @@
 {
   "name": "vision-camera-simple-scanner",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "High performance barcode scanner for React Native using VisionCamera, forked from vision-camera-barcode-scanner",
   "keywords": [
     "android",
