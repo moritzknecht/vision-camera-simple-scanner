@@ -3,6 +3,8 @@ package com.visioncamerasimplescanner;
 import android.graphics.ImageFormat;
 import android.media.Image;
 import android.util.Log;
+import android.view.Surface;
+
 import com.google.android.gms.tasks.Tasks;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -10,10 +12,10 @@ import com.google.mlkit.vision.barcode.BarcodeScanning;
 import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.common.InputImage;
 import com.mrousavy.camera.core.FrameInvalidError;
-import com.mrousavy.camera.frameprocessor.Frame;
-import com.mrousavy.camera.frameprocessor.FrameProcessorPlugin;
-import com.mrousavy.camera.frameprocessor.VisionCameraProxy;
-import com.mrousavy.camera.types.Orientation;
+import com.mrousavy.camera.frameprocessors.Frame;
+import com.mrousavy.camera.frameprocessors.FrameProcessorPlugin;
+import com.mrousavy.camera.frameprocessors.VisionCameraProxy;
+import com.mrousavy.camera.core.types.Orientation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -45,49 +47,47 @@ public class CodeScannerProcessorPlugin extends FrameProcessorPlugin {
     @NotNull Frame frame,
     @Nullable Map<String, Object> params
   ) {
-    Image mediaImage = frame.getImage();
-
-    if (mediaImage.getFormat() != ImageFormat.YUV_420_888) {
-      Log.e(
-        TAG,
-        "Unsupported image format: " +
-        mediaImage.getFormat() +
-        ". Only YUV_420_888 is supported for now."
-      );
-      return null;
-    }
-
-    InputImage inputImage = getInputImageFromFrame(frame);
-    if (inputImage == null) {
-      return null;
-    }
-
-    BarcodeScanner scanner = getBarcodeScannerClient(params);
-
-    List<Object> barcodes = new ArrayList<>();
     try {
+      Image mediaImage = frame.getImage();
+
+      if (mediaImage.getFormat() != ImageFormat.YUV_420_888) {
+        Log.e(
+          TAG,
+          "Unsupported image format: " +
+          mediaImage.getFormat() +
+          ". Only YUV_420_888 is supported for now."
+        );
+        return null;
+      }
+
+      InputImage inputImage = getInputImageFromFrame(frame);
+      if (inputImage == null) {
+        return null;
+      }
+
+      BarcodeScanner scanner = getBarcodeScannerClient(params);
+
+      List<Object> barcodes = new ArrayList<>();
       List<Barcode> barcodeList = Tasks.await(scanner.process(inputImage));
       barcodeList.forEach(
         barcode -> barcodes.add(BarcodeConverter.convertBarcode(barcode))
       );
-    } catch (ExecutionException | InterruptedException e) {
+
+      return barcodes;
+    } catch (ExecutionException | InterruptedException | FrameInvalidError e) {
       Log.e(TAG, "Error processing image for barcodes: " + e.getMessage());
       return null;
     }
-
-    return barcodes;
   }
 
   @Nullable
   private InputImage getInputImageFromFrame(@NotNull Frame frame) {
-    Image mediaImage = frame.getImage();
     try {
+      Image mediaImage = frame.getImage();
       Orientation orientation = frame.getOrientation();
       return InputImage.fromMediaImage(
         mediaImage,
-        Orientation.Companion.fromUnionValue(
-          orientation.getUnionValue()
-        ).toDegrees()
+              Surface.ROTATION_0
       );
     } catch (FrameInvalidError e) {
       Log.e(TAG, "Received an invalid frame.");

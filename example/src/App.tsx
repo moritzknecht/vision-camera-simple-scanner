@@ -23,6 +23,7 @@ import {
 import { SkiaCameraHighlights } from './SkiaCameraHighlights';
 
 const DEBUGGING_MODE = false;
+const RESIZE_MODE = 'cover';
 
 export default function App() {
   // Ask for camera permission
@@ -35,6 +36,7 @@ export default function App() {
   // which contain the information about this frame's discovered barcodes.
   const { props: cameraProps, highlights } = useBarcodeScanner({
     fps: 30,
+    resizeMode: RESIZE_MODE,
     onBarcodeScanned: (barcodes) => {
       'worklet';
 
@@ -44,7 +46,7 @@ export default function App() {
         )} !`,
       );
     },
-    // If we are patching react-native-vision-camera, we likely want to use our own point mapping function
+    //  If we are patching react-native-vision-camera, we likely want to use our own point mapping function
     pointMapper: (
       { x, y }: Point,
       { width, height }: Size,
@@ -54,10 +56,7 @@ export default function App() {
 
       if (Platform.OS === 'android') {
         switch (orientation) {
-          case 'portrait':
-            return { x: height - y, y: x };
           default:
-            console.warn(`Unsupported orientation: ${orientation}`);
             return { x, y };
         }
       } else if (Platform.OS === 'ios') {
@@ -101,17 +100,15 @@ export default function App() {
           />
         </View>
       ) : (
-        <>
+        <View style={{ borderColor: 'red', borderWidth: 2, flex: 1 }}>
           <Camera
             // You're free to do any react-native-vision-camera customization you'd normally do
             enableFpsGraph={DEBUGGING_MODE}
-            // orientation="landscape-right"
-            // resizeMode="cover"
+            resizeMode={RESIZE_MODE}
             style={StyleSheet.absoluteFill}
             device={device}
             isActive={!isPaused}
             zoom={2}
-            orientation={'landscape-right'}
             {...cameraProps}
           />
           <SkiaCameraHighlights
@@ -121,7 +118,7 @@ export default function App() {
             debug={DEBUGGING_MODE}
             onBarcodeTapped={(barcode) => setTappedCode(barcode)}
           />
-        </>
+        </View>
       )}
       <SafeAreaView edges={['top', 'left', 'right']} style={styles.actions}>
         <View style={styles.tappedContainer}>

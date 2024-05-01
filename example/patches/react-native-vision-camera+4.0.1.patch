@@ -1,3 +1,93 @@
+diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/CameraSession.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/CameraSession.kt
+index 16d9aa5..8ee503b 100644
+--- a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/CameraSession.kt
++++ b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/CameraSession.kt
+@@ -5,12 +5,16 @@ import android.annotation.SuppressLint
+ import android.content.Context
+ import android.content.pm.PackageManager
+ import android.graphics.BitmapFactory
++import android.hardware.display.DisplayManager
+ import android.media.AudioManager
++import android.os.Build
+ import android.util.Log
+ import android.util.Range
+ import android.util.Size
++import android.view.Surface
+ import androidx.annotation.MainThread
+ import androidx.annotation.OptIn
++import androidx.annotation.RequiresApi
+ import androidx.camera.core.Camera
+ import androidx.camera.core.CameraControl
+ import androidx.camera.core.CameraSelector
+@@ -101,6 +105,26 @@ class CameraSession(private val context: Context, private val callback: Callback
+   // Threading
+   private val mainExecutor = ContextCompat.getMainExecutor(context)
+ 
++  // Keeps the frameProcessor and preview outputs "upright"
++  private val displayListener = object : DisplayManager.DisplayListener {
++    @RequiresApi(Build.VERSION_CODES.R)
++    override fun onDisplayChanged(displayId: Int) {
++      if (context.display?.displayId == displayId) {
++        val rotation = context.display?.rotation
++        if (rotation != null) {
++          previewOutput?.targetRotation = rotation
++          frameProcessorOutput?.targetRotation = rotation
++        }
++      }
++    }
++
++    override fun onDisplayAdded(displayId: Int) {
++    }
++
++    override fun onDisplayRemoved(displayId: Int) {
++    }
++  }
++
+   init {
+     lifecycleRegistry.currentState = Lifecycle.State.CREATED
+     lifecycle.addObserver(object : LifecycleEventObserver {
+@@ -108,6 +132,8 @@ class CameraSession(private val context: Context, private val callback: Callback
+         Log.i(TAG, "Camera Lifecycle changed to ${event.targetState}!")
+       }
+     })
++    val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
++    displayManager.registerDisplayListener(displayListener, null)
+   }
+ 
+   override fun close() {
+@@ -116,6 +142,8 @@ class CameraSession(private val context: Context, private val callback: Callback
+     runOnUiThread {
+       lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
+     }
++    val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
++    displayManager.unregisterDisplayListener(displayListener)
+   }
+ 
+   override fun getLifecycle(): Lifecycle = lifecycleRegistry
+@@ -355,6 +383,10 @@ class CameraSession(private val context: Context, private val callback: Callback
+             .build()
+           analysis.setResolutionSelector(resolutionSelector)
+         }
++        // Rotate the output image to "upright" for frame processor handling
++        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
++          analysis.setOutputImageRotationEnabled(true)
++        }
+       }.build()
+       val pipeline = FrameProcessorPipeline(callback)
+       analyzer.setAnalyzer(CameraQueues.videoQueue.executor, pipeline)
+diff --git a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/types/PreviewViewType.kt b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/types/PreviewViewType.kt
+index caa399e..99ed4a3 100644
+--- a/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/types/PreviewViewType.kt
++++ b/node_modules/react-native-vision-camera/android/src/main/java/com/mrousavy/camera/core/types/PreviewViewType.kt
+@@ -9,7 +9,7 @@ enum class PreviewViewType(override val unionValue: String) : JSUnionValue {
+ 
+   fun toPreviewImplementationMode(): PreviewView.ImplementationMode =
+     when (this) {
+-      SURFACE_VIEW -> PreviewView.ImplementationMode.PERFORMANCE
++      SURFACE_VIEW -> PreviewView.ImplementationMode.COMPATIBLE
+       TEXTURE_VIEW -> PreviewView.ImplementationMode.COMPATIBLE
+     }
+ 
 diff --git a/node_modules/react-native-vision-camera/ios/Core/Extensions/AVCaptureOutput+mirror.swift b/node_modules/react-native-vision-camera/ios/Core/Extensions/AVCaptureOutput+mirror.swift
 index 63910cd..014c9bd 100644
 --- a/node_modules/react-native-vision-camera/ios/Core/Extensions/AVCaptureOutput+mirror.swift

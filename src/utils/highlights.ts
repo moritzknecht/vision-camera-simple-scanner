@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import type { CameraProps, Frame } from 'react-native-vision-camera';
 import type { Barcode, Highlight, PointMapperFn, Size } from 'src/types';
 import { computeBoundingBoxFromCornerPoints } from './convert';
@@ -17,24 +18,27 @@ export const computeHighlights = (
     return [];
   }
 
-  /* iOS:
-   * "portrait" -> "landscape-right"
-   * "portrait-upside-down" -> "landscape-left"
-   * "landscape-left" -> "portrait"
-   * "landscape-right" -> "portrait-upside-down"
-   */
-  // @NOTE destructure the object to make sure we don't hold a reference to the original layout
-  const adjustedLayout = ['portrait', 'portrait-upside-down'].includes(
-    frame.orientation,
-  )
-    ? {
-        width: layout.height,
-        height: layout.width,
-      }
-    : {
-        width: layout.width,
-        height: layout.height,
-      };
+  let adjustedLayout = layout;
+  if (Platform.OS === 'ios') {
+    /* iOS:
+     * "portrait" -> "landscape-right"
+     * "portrait-upside-down" -> "landscape-left"
+     * "landscape-left" -> "portrait"
+     * "landscape-right" -> "portrait-upside-down"
+     */
+    // @NOTE destructure the object to make sure we don't hold a reference to the original layout
+    adjustedLayout = ['portrait', 'portrait-upside-down'].includes(
+      frame.orientation,
+    )
+      ? {
+          width: layout.height,
+          height: layout.width,
+        }
+      : {
+          width: layout.width,
+          height: layout.height,
+        };
+  }
 
   const highlights = barcodes.map<Highlight>((barcode, index) => {
     const { value, cornerPoints } = barcode;

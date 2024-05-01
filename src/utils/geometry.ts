@@ -51,7 +51,7 @@ export const applyTransformation = (
   if (Platform.OS === 'android') {
     switch (orientation) {
       case 'portrait':
-        return { x: height - y, y: x };
+        return { x, y };
       default:
         console.warn(`Unsupported orientation: ${orientation}`);
         return { x, y };
