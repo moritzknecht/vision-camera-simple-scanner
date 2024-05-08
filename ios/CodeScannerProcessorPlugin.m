@@ -63,7 +63,7 @@ static RCTEventEmitter* eventEmitter = nil;
                  completion:^(NSArray* observations) {
                    for (VNBarcodeObservation* observation in observations) {
                      NSLog(@"Payload: %@ (%@)", observation.payloadStringValue, observation.symbology);
-                     NSDictionary* observationResult = [self dictionaryFromObservation:observation];
+                     NSMutableDictionary* observationResult = [[self dictionaryFromObservation:observation] mutableCopy];
                      [observationResult setValue:[NSNumber numberWithInt:orientation] forKey:@"orientation"];
                      [eventEmitter sendEventWithName:@"onBarcodeDetected" body:observationResult];
                      [result addObject:observationResult];
